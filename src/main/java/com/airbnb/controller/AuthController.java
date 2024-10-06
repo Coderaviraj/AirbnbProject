@@ -3,6 +3,7 @@ package com.airbnb.controller;
 
 import com.airbnb.entity.AppUser;
 import com.airbnb.exception.UserExists;
+import com.airbnb.payload.LoginDto;
 import com.airbnb.repository.AppUserRepository;
 import com.airbnb.service.AppUserServiceImpl;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class AuthController {
         this.appUserService = appUserService;
     }
 
-    @PostMapping
+    @PostMapping("/createUser")
     public ResponseEntity<AppUser> createUser(@RequestBody AppUser user) {
         Optional<AppUser> opEmail = appUserRepository.findByEmail(user.getEmail());
         if (opEmail.isPresent()) {
@@ -43,5 +44,16 @@ public class AuthController {
 
         return new ResponseEntity<>(savedUser , HttpStatus.CREATED);
 
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> signIn(@RequestBody LoginDto loginDto){
+        boolean status = appUserService.verifyLogin(loginDto);
+        if (status){
+            return new ResponseEntity<>("Login Successful", HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>("Invalid Credentials", HttpStatus.UNAUTHORIZED);
+        }
     }
 }
