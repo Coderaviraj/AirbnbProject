@@ -3,6 +3,7 @@ package com.airbnb.controller;
 
 import com.airbnb.entity.AppUser;
 import com.airbnb.exception.UserExists;
+import com.airbnb.payload.JWTToken;
 import com.airbnb.payload.LoginDto;
 import com.airbnb.repository.AppUserRepository;
 import com.airbnb.service.AppUserServiceImpl;
@@ -47,10 +48,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> signIn(@RequestBody LoginDto loginDto){
-        boolean status = appUserService.verifyLogin(loginDto);
-        if (status){
-            return new ResponseEntity<>("Login Successful", HttpStatus.OK);
+    public ResponseEntity<?> signIn(@RequestBody LoginDto loginDto){
+        String token = appUserService.verifyLogin(loginDto);
+        JWTToken jwtToken = new JWTToken();
+        if (token!=null){
+            jwtToken.setTokenType("JWT");
+            jwtToken.setToken(token);
+            return new ResponseEntity<>(jwtToken, HttpStatus.OK);
         }
         else {
             return new ResponseEntity<>("Invalid Credentials", HttpStatus.UNAUTHORIZED);
