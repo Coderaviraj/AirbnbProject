@@ -16,8 +16,11 @@ public class AppUserServiceImpl {
 
     private AppUserRepository appUserRepository;
 
-    public AppUserServiceImpl(AppUserRepository appUserRepository) {
+    private JWTService jwtService;
+
+    public AppUserServiceImpl(AppUserRepository appUserRepository, JWTService jwtService) {
         this.appUserRepository = appUserRepository;
+        this.jwtService = jwtService;
     }
 
     public AppUser createUser(AppUser user) {
@@ -28,14 +31,16 @@ public class AppUserServiceImpl {
 
     }
 
-    public boolean verifyLogin(LoginDto loginDto) {
+    public String verifyLogin(LoginDto loginDto) {
 //        Optional<AppUser> opUser = appUserRepository.findByUsername(loginDto.getUsername());
         Optional<AppUser> opUser = appUserRepository.findByUsernameOrEmail(loginDto.getUsername(), loginDto.getUsername());
         if(opUser.isPresent()) {
             AppUser appUser = opUser.get();
-            return BCrypt.checkpw(loginDto.getPassword(),appUser.getPassword());
+            if (BCrypt.checkpw(loginDto.getPassword(),appUser.getPassword())){
+                return jwtService.generateToken(appUser);
+            }
 
         }
-            return false;
+        return null;
     }
 }
