@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.Optional;
 
 @RestController
@@ -41,6 +40,47 @@ public class AuthController {
 
         }
 
+        user.setRole("ROLE_USER");
+        AppUser savedUser = appUserService.createUser(user);
+
+        return new ResponseEntity<>(savedUser , HttpStatus.CREATED);
+
+    }
+
+    @PostMapping("/createpropertyowner")
+    public ResponseEntity<AppUser> createPropertyOwner(@RequestBody AppUser user) {
+        Optional<AppUser> opEmail = appUserRepository.findByEmail(user.getEmail());
+        if (opEmail.isPresent()) {
+            throw  new UserExists("Email already exists");
+
+        }
+        Optional<AppUser> opUsername = appUserRepository.findByUsername(user.getUsername());
+        if (opUsername.isPresent()) {
+            throw  new UserExists("Username already exists");
+
+        }
+
+        user.setRole("ROLE_MANAGER");
+        AppUser savedUser = appUserService.createUser(user);
+
+        return new ResponseEntity<>(savedUser , HttpStatus.CREATED);
+
+    }
+
+    @PostMapping("/createpropertymanager")
+    public ResponseEntity<AppUser> createPropertyManager(@RequestBody AppUser user) {
+        Optional<AppUser> opEmail = appUserRepository.findByEmail(user.getEmail());
+        if (opEmail.isPresent()) {
+            throw  new UserExists("Email already exists");
+
+        }
+        Optional<AppUser> opUsername = appUserRepository.findByUsername(user.getUsername());
+        if (opUsername.isPresent()) {
+            throw  new UserExists("Username already exists");
+
+        }
+
+        user.setRole("ROLE_OWNER");
         AppUser savedUser = appUserService.createUser(user);
 
         return new ResponseEntity<>(savedUser , HttpStatus.CREATED);
@@ -60,4 +100,5 @@ public class AuthController {
             return new ResponseEntity<>("Invalid Credentials", HttpStatus.UNAUTHORIZED);
         }
     }
+
 }
