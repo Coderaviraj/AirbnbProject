@@ -26,8 +26,10 @@ public class SecurityConfig {
 //        http.authorizeHttpRequests().anyRequest().permitAll();
         http.addFilterBefore(jwtFilter, AuthorizationFilter.class);
         http.authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/**")
+                .requestMatchers("/api/v1/auth/createUser","/api/v1/auth/createpropertyowner","/api/v1/auth/login")
                 .permitAll()
+                .requestMatchers("/api/v1/auth/property/addproperty").hasRole("OWNER")
+                .requestMatchers("/api/v1/auth/createpropertyowner").hasRole("ADMIN")
                 .anyRequest().authenticated();
 
         return http.build();
